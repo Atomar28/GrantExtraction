@@ -1,0 +1,52 @@
+import asyncio
+import csv
+from playwright.async_api import async_playwright
+
+# Constants
+FORM_URL = "<INSERT_VALID_URL_HERE>"  # This is a placeholder for actual form URL
+OUTPUT_CSV = "/Users/anshumantomar/Desktop/output_grant_details.csv"
+INPUT_CSV = "/Users/anshumantomar/Desktop/income_values.csv"
+
+async def extract_grant_details():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False, slow_mo=500)  # This enables the debug mode and will allow us to see 
+                                                                        # the proceess slowly,making it more comprehendable
+        page = await browser.new_page()
+        
+        # Reads income values from the CSV file provided
+        with open(INPUT_CSV, newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            income_values = [row[0] for row in reader if row]
+        
+        output_data = []
+        
+        for income in income_values:
+            await page.goto(FORM_URL)
+            
+            # Fills thje static values in the form
+            await page.fill("input[name='name']", "John Doe")  # Example static value
+            await page.fill("input[name='age']", "30")  # Example static value
+            
+            # Handles the input type number
+            await page.evaluate("(value) => document.querySelector(\"input[name='income']\").value = value", str(income))
+            
+            # Submits the form
+            await page.click("button[type='submit']")
+            
+            # Wait for result page to load
+            await page.wait_for_selector("#grant-details", timeout=5000)  # Adjust selector as needed
+            
+            # Extract grant details
+            grant_details = await page.inner_text("#grant-details")
+            output_data.append([income, grant_details])
+        
+        await browser.close()
+        
+        # Write extracted details to CSV again
+        with open(OUTPUT_CSV, "w", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Income", "Grant Details"])
+            writer.writerows(output_data)
+
+# Run the script
+asyncio.run(extract_grant_details())

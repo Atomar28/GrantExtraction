@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Form</title>
+</head>
+<body>
+    <h2>Grant Extraction Test Form</h2>
+    <form id="grantForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age"><br><br>
+        
+        <label for="income">Income:</label>
+        <input type="number" id="income" name="income"><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+    
+    <div id="grant-details" style="display:none;">
+        <h3>Grant Details</h3>
+        <p id="result">Grant Amount: $5000</p>
+    </div>
+
+    <script>
+        document.getElementById("grantForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent actual form submission
+            document.getElementById("grant-details").style.display = "block";
+        });
+    </script>
+</body>
+</html>
